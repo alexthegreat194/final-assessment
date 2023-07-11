@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Assessment</title>
+</head>
+<body>
+    <svg id="gragh" width="800" height="500"></svg>
+
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script>
+        
+        d3.csv("2019.csv").then((data) => {
+            top10 = data.filter((v) => v["Overall rank"] <= 10);
+
+            const height = 500;
+            const width = 800;
+            const margin = 25;
+        
+            const svg = d3.select("#gragh")
+
+            const xScale = d3.scaleBand()
+                .domain(top10.map((v) => v["Country or region"]))
+                .range([margin, width - margin])
+                .padding(0.1)
+
+            const yExtent = d3.extent(top10, (v) => v["Score"])
+            const yScale = d3.scaleLinear()
+                .domain([7, 8])
+                .range([height - margin, margin])
+
+            const colors = d3.scaleOrdinal(d3.schemeCategory10)
+                .domain(top10.map((v) => v["Country or region"]))
+
+            const xAxis = d3.axisBottom(xScale)
+            const yAxis = d3.axisLeft(yScale)
+
+            svg.append("g")
+                .attr("transform", `translate(0, ${height - margin})`)
+                .call(xAxis)
+
+            svg.append("g")
+                .attr("transform", `translate(${margin}, 0)`)
+                .call(yAxis)
+
+            svg.selectAll("rect")
+                .data(top10)
+                .enter()
+                .append("rect")
+                .attr("x", (v) => xScale(v["Country or region"]))
+                .attr("y", (v) => yScale(v["Score"]))
+                .attr("width", xScale.bandwidth())
+                .attr("height", (v) => height - margin - yScale(v["Score"]))
+                .attr("fill", (v) => colors(v["Country or region"]))
+        });
+        
+    </script>
+</body>
+</html>
